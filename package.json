@@ -1,0 +1,23 @@
+{
+  "name": "danke-fetcha",
+  "version": "1.0.0",
+  "description": "Fetch Free Images or resource globally",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/liuhann/fetcha.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/liuhann/fetcha/issues"
+  },
+  "homepage": "https://github.com/liuhann/fetcha#readme",
+  "dependencies": {
+    "download": "^8.0.0",
+    "got": "^11.3.0"
+  }
+}
