@@ -4,6 +4,7 @@ const axios = require('axios')
 const request = require('request')
 const download  = require ('download')
 const RestDAO = require('../restdao')
+const debug = require('debug')('utils')
 const { fileExtension, sleep } = require('../utils')
 
 const dao = new RestDAO(axios.create({
@@ -18,6 +19,11 @@ const vectordao = new RestDAO(axios.create({
   }
 }), 'http://www.danke.fun/api/danke/public/vector')
 
+const deleteddao = new RestDAO(axios.create({
+  headers: {
+    token: 'D0IX1ziF3nJ6UMgu'
+  }
+}), 'http://www.danke.fun/api/danke/public/deleted')
 
 /**
  * 获取JSON文件中所有可用的图片实体
@@ -31,6 +37,7 @@ async function getItemEntries (file) {
   const mediasRequests = read.log.entries.filter(entry => entry.request.url.startsWith('https://www.canva.cn/_ajax/search/media2-untokenized'))
 
   for (let mediaRequest of mediasRequests) {
+    if (!mediaRequest.response.content.text) continue
     const jsonRead = JSON.parse(mediaRequest.response.content.text.substring(20))
 
     jsonRead.A.forEach(img => {
@@ -48,6 +55,10 @@ async function getItemEntries (file) {
 function convertImageItemEntry (item) {
   const img = {}
 
+  if (item['D'] === 'STICKER') {
+    // 动画暂时不处理
+    return null
+  }
   img.uid = item['B']
   img.title = item['G'] || item['F']
   img.tags = item['U']
@@ -74,15 +85,14 @@ function convertImageItemEntry (item) {
       delete img.canvasUrl
       img.svg = {
         // 设置SVG实体内容
-        vp: [item.g['A']['A'], item.g['A']['B'], item.g['A']['C'], item.g['A']['D']], // viewport
+        vp: [item.g['A']['A'], item.g['A']['B'], item.g['A']['D'], item.g['A']['C']], // viewport
         ps: item.g['B'].map(path => ({ // path list
           p: path['A'], // path信息
           f: path['B']['C'] // fill Color
         }))
       }
-      img.w = item.g['A']['C']
-      img.h = item.g['A']['D']
-
+      img.w = item.g['A']['D']
+      img.h = item.g['A']['C']
     }
   } else {
     img.type = 'img' // raster
@@ -96,11 +106,21 @@ function convertImageItemEntry (item) {
       }
     }
   }
+  img.type = 'vct' // vector
   return img
 }
 
 // 检查图片是否上传
 const checkImageUploaded = async img => {
+  debug('check image ', img.uid)
+  const deleted = await deleteddao.findOne({
+    uid: img.uid
+  })
+  if (deleted) {
+    debug('deleted ', img.uid, img.title)
+    return deleted
+  }
+
   if (img.type === 'img') {
     return await dao.findOne({
       uid: img.uid
