@@ -33,4 +33,4 @@ async function extractCanvasImageAndUpload (har) {
 }
 
 
-extractCanvasImageAndUpload('d:/花丛.har')
+extractCanvasImageAndUpload('d:/temp.har')
