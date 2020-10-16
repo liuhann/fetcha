@@ -28,6 +28,7 @@
     "jsonfile": "^6.0.1",
     "mongodb": "^3.5.9",
     "node-fetch": "^2.6.1",
+    "puppeteer": "^5.3.1",
     "request": "^2.88.2",
     "tough-cookie": "^4.0.0"
   }

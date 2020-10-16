@@ -93,7 +93,7 @@ module.exports = class CanvasWork extends CopyWork {
         }
       }
     }
-    img.type = 'vct' // vector
+    // img.type = 'vct' // vector
     return img
   }
 
