@@ -70,7 +70,7 @@ async function uploadFile (filePath, id) {
                 debug('resolved')
             }
         } catch (e) {
-            console.log('error:skip to next', e)
+            console.log('error:skip to next')
         }
         await sleep(500)
     }
