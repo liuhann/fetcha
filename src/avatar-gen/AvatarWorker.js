@@ -19,7 +19,7 @@ async function uploadFile (filePath, id) {
                 method: 'POST',
                 preambleCRLF: true,
                 postambleCRLF: true,
-                uri: `http://www.danke.fun/api/dankev3/image/upload?path=avatar/${id}.png&public=true`,
+                uri: `http://www.danke.fun/api/dankev3/image/upload?path=snapshot/${id}.png&public=true`,
                 multipart: [
                     {
                         'content-type': 'image/png',
@@ -41,35 +41,38 @@ async function uploadFile (filePath, id) {
     const browser = await puppeteer.launch()
     const ee = new EventEmitter()
     const page = await browser.newPage()
-    page.setViewport({
-        width: 960,
-        height: 960
-    })
     page.exposeFunction('avatarReady', async (e) => {
         ee.emit('page-loaded', e)
     });
     debug('puppeteer started')
     while (true) {
         try {
-            const response = await instance.get(`http://www.danke.fun/api/danke/avatar/queue`)
-            let follow = response.data.data.follow
-            if (follow) {
-                debug('Follow Gen :' , follow)
+            const response = await instance.get(`http://www.danke.fun/api/danke/preview/queue`)
+            let { workId, viewBox } = response.data.data
+            if (workId && viewBox) {
+                debug('Follow Gen :' , workId, viewBox)
+                page.setViewport({
+                    width: parseInt(viewBox.width) || 360,
+                    height: parseInt(viewBox.height) || 360
+                })
                 await new Promise(async resolve => {
-                    page.goto('http://localhost/work/follow/' + follow);
+                    page.goto('http://localhost/work/snapshot/' + workId);
                     ee.once('page-loaded', async () => {
-                        const filePath = path.resolve(__dirname, follow + '-example.png')
-                        await page.screenshot({path: filePath})
-                        const uploadResult = await uploadFile(filePath, follow)
+                        await sleep(300)
+                        const filePath = path.resolve(__dirname, workId + '-example.png')
+                        await page.screenshot({path: filePath, omitBackground: true})
+                        const uploadResult = await uploadFile(filePath, workId)
                         const url = JSON.parse(uploadResult).data.name
                         debug('fileUploaded ', url)
-                        await instance.get(`http://www.danke.fun/api/danke/avatar/ready?id=` + follow + '&snapshot=' + url)
+                        await instance.get(`http://www.danke.fun/api/danke/preview/ready?id=` + workId + '&snapshot=' + url)
+                        fs.unlink(filePath)
                         resolve()
                     })
                 })
                 debug('resolved')
             }
         } catch (e) {
+            console.log(e)
             console.log('error:skip to next')
         }
         await sleep(500)
