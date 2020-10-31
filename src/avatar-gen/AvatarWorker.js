@@ -36,45 +36,48 @@ async function uploadFile (filePath, id) {
             });
     })
 }
-
-(async () => {
+module.exports = async function (app) {
     const browser = await puppeteer.launch()
     const ee = new EventEmitter()
     const page = await browser.newPage()
     page.exposeFunction('avatarReady', async (e) => {
         ee.emit('page-loaded', e)
     });
-    debug('puppeteer started')
-    while (true) {
-        try {
-            const response = await instance.get(`http://www.danke.fun/api/danke/preview/queue`)
-            let { workId, viewBox } = response.data.data
-            if (workId && viewBox) {
-                debug('Follow Gen :' , workId, viewBox)
-                page.setViewport({
-                    width: parseInt(viewBox.width) || 360,
-                    height: parseInt(viewBox.height) || 360
-                })
-                await new Promise(async resolve => {
-                    page.goto('http://localhost/work/snapshot/' + workId);
-                    ee.once('page-loaded', async () => {
-                        await sleep(300)
-                        const filePath = path.resolve(__dirname, workId + '-example.png')
-                        await page.screenshot({path: filePath, omitBackground: true})
-                        const uploadResult = await uploadFile(filePath, workId)
-                        const url = JSON.parse(uploadResult).data.name
-                        debug('fileUploaded ', url)
-                        await instance.get(`http://www.danke.fun/api/danke/preview/ready?id=` + workId + '&snapshot=' + url)
-                        fs.unlink(filePath)
-                        resolve()
+        
+    debug('puppeteer started');
+
+    (async () => {
+        while (true) {
+            try {
+                const response = await instance.get(`http://www.danke.fun/api/danke/preview/queue`)
+                let { workId, viewBox } = response.data.data
+                if (workId && viewBox) {
+                    debug('Follow Gen :' , workId, viewBox)
+                    page.setViewport({
+                        width: parseInt(viewBox.width) || 360,
+                        height: parseInt(viewBox.height) || 360
                     })
-                })
-                debug('resolved')
+                    await new Promise(async resolve => {
+                        page.goto('http://localhost/work/snapshot/' + workId);
+                        ee.once('page-loaded', async () => {
+                            await sleep(300)
+                            const filePath = path.resolve(__dirname, workId + '-example.png')
+                            await page.screenshot({path: filePath, omitBackground: true})
+                            const uploadResult = await uploadFile(filePath, workId)
+                            const url = JSON.parse(uploadResult).data.name
+                            debug('fileUploaded ', url)
+                            await instance.get(`http://www.danke.fun/api/danke/preview/ready?id=` + workId + '&snapshot=' + url)
+                            fs.unlink(filePath)
+                            resolve()
+                        })
+                    })
+                    debug('resolved')
+                }
+            } catch (e) {
+                console.log(e)
+                console.log('error:skip to next')
             }
-        } catch (e) {
-            console.log(e)
-            console.log('error:skip to next')
+            await sleep(500)
         }
-        await sleep(500)
-    }
-})()
+    })()
+}
