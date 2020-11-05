@@ -5,6 +5,7 @@ const EventEmitter = require('events')
 const debug = require('debug')('avatar')
 const request = require('request')
 const fs = require('fs-extra')
+const config = require('../../config')
 const axios = require('axios')
 const { sleep } = require('../utils')
 const instance = axios.create({
@@ -57,8 +58,8 @@ module.exports = async function (app) {
                         width: parseInt(viewBox.width) || 360,
                         height: parseInt(viewBox.height) || 360
                     })
-                    await new Promise(async resolve => {
-                        page.goto('http://localhost/work/snapshot/' + workId);
+                    await Promise.race([new Promise(async resolve => {
+                        page.goto(`http://localhost:${config.port}/work/snapshot/${workId}`);
                         ee.once('page-loaded', async () => {
                             await sleep(300)
                             const filePath = path.resolve(__dirname, workId + '-example.png')
@@ -70,7 +71,7 @@ module.exports = async function (app) {
                             fs.unlink(filePath)
                             resolve()
                         })
-                    })
+                    }), sleep(20000)])
                     debug('resolved')
                 }
             } catch (e) {
