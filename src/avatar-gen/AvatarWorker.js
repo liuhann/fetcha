@@ -59,7 +59,7 @@ module.exports = async function (app) {
                         height: parseInt(viewBox.height) || 360
                     })
                     await Promise.race([new Promise(async resolve => {
-                        page.goto(`http://localhost:${config.port}/work/snapshot/${workId}`);
+                        page.goto(`http://localhost/work/snapshot/${workId}`);
                         ee.once('page-loaded', async () => {
                             await sleep(300)
                             const filePath = path.resolve(__dirname, workId + '-example.png')
@@ -68,14 +68,13 @@ module.exports = async function (app) {
                             const url = JSON.parse(uploadResult).data.name
                             debug('fileUploaded ', url)
                             await instance.get(`http://www.danke.fun/api/danke/preview/ready?id=` + workId + '&snapshot=' + url)
-                            fs.unlink(filePath)
+                            // fs.unlink(filePath)
                             resolve()
                         })
                     }), sleep(20000)])
                     debug('resolved')
                 }
             } catch (e) {
-                console.log(e)
                 console.log('error:skip to next')
             }
             await sleep(500)
