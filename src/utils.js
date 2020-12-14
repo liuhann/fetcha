@@ -1,4 +1,6 @@
 const MongoDBService = require('./mongodb')
+const download = require('download')
+const debug = require('debug')('utils')
 async function getMongoColl () {
   const mds = new MongoDBService({
     url: 'mongodb://127.0.0.1:27017',
@@ -21,7 +23,22 @@ async function sleep (mill) {
   })
 }
 
+
+async function downloadList (list, target, endFix) {
+
+  let index = 1;
+  for (let url of list) {
+    // 下载到本地download目录
+    debug('download url', url)
+    await download(url, target, {
+      filename: 'image-' + index + '.' + (endFix || 'jpg')
+    })
+    index ++
+  }
+}
+
 module.exports = {
+  downloadList,
   sleep,
   fileExtension,
   getMongoColl
