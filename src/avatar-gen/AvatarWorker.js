@@ -5,6 +5,7 @@ const EventEmitter = require('events')
 const debug = require('debug')('avatar')
 const request = require('request')
 const fs = require('fs-extra')
+const config = require('../../config')
 const axios = require('axios')
 const { sleep } = require('../utils')
 const instance = axios.create({
@@ -57,8 +58,8 @@ module.exports = async function (app) {
                         width: parseInt(viewBox.width) || 360,
                         height: parseInt(viewBox.height) || 360
                     })
-                    await new Promise(async resolve => {
-                        page.goto('http://localhost/work/snapshot/' + workId);
+                    await Promise.race([new Promise(async resolve => {
+                        page.goto(`http://localhost/work/snapshot/${workId}`);
                         ee.once('page-loaded', async () => {
                             await sleep(300)
                             const filePath = path.resolve(__dirname, workId + '-example.png')
@@ -67,14 +68,13 @@ module.exports = async function (app) {
                             const url = JSON.parse(uploadResult).data.name
                             debug('fileUploaded ', url)
                             await instance.get(`http://www.danke.fun/api/danke/preview/ready?id=` + workId + '&snapshot=' + url)
-                            fs.unlink(filePath)
+                            // fs.unlink(filePath)
                             resolve()
                         })
-                    })
+                    }), sleep(20000)])
                     debug('resolved')
                 }
             } catch (e) {
-                console.log(e)
                 console.log('error:skip to next')
             }
             await sleep(500)
