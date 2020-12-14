@@ -4,3 +4,4 @@ weibo
 **/downloads
 *.json
 .idea
+public
