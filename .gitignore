@@ -3,5 +3,21 @@ sony
 weibo
 **/downloads
 *.json
+*.svg
+*.png
+*.jpg
 .idea
 public
+/src/flaticon/2945/
+/src/flaticon/avatar-icon-pack-1/
+/src/flaticon/avatar-icon-pack-2/
+/src/flaticon/avatar-icon-pack-kid/
+/src/flaticon/avatar-icon-pack-kid-2/
+/src/flaticon/avatar-icon-pack-monster/
+/src/flaticon/canvas-emo/
+/src/flaticon/dinosaur/
+/src/flaticon/food-drink/
+/src/flaticon/Fruit Vegetable/
+/src/flaticon/Fruit Vegetable1/
+/src/flaticon/Halloween/
+/src/flaticon/Vegetables Icon Pack/
