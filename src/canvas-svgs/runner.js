@@ -1,10 +1,20 @@
 process.env.DEBUG='copy,work,canvas'
 const SVGWork = require('./SvgWork')
+const BaseWork = require('../BaseWork')
+const { replaceSVGRatio } = require('../utils')
 
-// weibo work
+//
+// const work = new SVGWork({
+//  har : 'd:/temp.har',
+//  dir: './brush'
+// })
 
-const work = new SVGWork({
- har : 'd:/temp.har'
+const work = new BaseWork({
+ har : 'd:/temp.har',
+ dir: './svg-brush'
 })
 
-work.run()
+work.eachFile(content => {
+ return replaceSVGRatio(content)
+})
+

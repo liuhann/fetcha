@@ -37,7 +37,16 @@ async function downloadList (list, target, endFix) {
   }
 }
 
+function replaceSVGRatio (content) {
+  if (content.indexOf('preserveAspectRatio')>-1) {
+    return content.replace(/preserveAspectRatio="[^"]+"/, 'preserveAspectRatio="none"')
+  } else {
+    return content.replace(/<svg/, '<svg preserveAspectRatio="none"')
+  }
+}
+
 module.exports = {
+  replaceSVGRatio,
   downloadList,
   sleep,
   fileExtension,

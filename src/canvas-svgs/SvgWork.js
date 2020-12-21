@@ -106,7 +106,7 @@ module.exports = class CanvasWork extends CopyWork {
 
   toSvgContent (item) {
     if (item.g) {
-      let svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="none" version="1.0" viewBox="${item.g.A.A} ${item.g.A.B} ${item.g.A.D} ${item.g.A.C}">`
+      let svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="none" version="1.0" viewBox="0 0 ${item.g.A.D} ${item.g.A.C}">`
       svg += `<g>`
 
       for (let path of item.g.B) {
@@ -115,6 +115,14 @@ module.exports = class CanvasWork extends CopyWork {
       svg += `</g>`
       svg += `</svg>`
       return svg
+    }
+    return null
+  }
+
+  getSVGUrl (item) {
+    if (item.P !== 'STANDARD') {
+      const url = item.V[0].url
+      return url
     }
     return null
   }
@@ -132,8 +140,14 @@ module.exports = class CanvasWork extends CopyWork {
       for (let item of items) {
         try {
           const svg = this.toSvgContent(item)
+          const svgUrl = this.getSVGUrl(item)
           if (svg) {
               await fs.writeFileSync(this.dir + '/' + (item.G || 'seq-' + seq ).trim() + '.svg', svg)
+          } else if (svgUrl) {
+            console.log(svgUrl)
+            await download(svgUrl, this.dir, {
+              filename: (item.G || 'seq-' + seq ).trim() + '.' + this.fileExtension(svgUrl)
+            })
           } else {
             console.log('not svg')
           }
