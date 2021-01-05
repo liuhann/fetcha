@@ -143,10 +143,10 @@ module.exports = class CanvasWork extends CopyWork {
           const svgUrl = this.getSVGUrl(item)
           if (svg) {
               await fs.writeFileSync(this.dir + '/' + (item.G || 'seq-' + seq ).trim() + '.svg', svg)
-          } else if (svgUrl) {
+          } else if (svgUrl &&　svgUrl.endsWith('.svg')) {
             console.log(svgUrl)
             await download(svgUrl, this.dir, {
-              filename: (item.G || 'seq-' + seq ).trim() + '.' + this.fileExtension(svgUrl)
+              filename: 'seq-' + seq + (item.G ? item.G.trim() : '') + '.' + this.fileExtension(svgUrl)
             })
           } else {
             console.log('not svg')

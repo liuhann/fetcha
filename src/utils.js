@@ -38,6 +38,10 @@ async function downloadList (list, target, endFix) {
 }
 
 function replaceSVGRatio (content) {
+  content = content.replace(/width="[^"]+"/, '')
+      .replace(/height="[^"]+"/, '')
+      .replace(/<\?xml[^>]+>/g, '')
+      .replace(/<!--(.|[\r\n])*?-->/g, '')
   if (content.indexOf('preserveAspectRatio')>-1) {
     return content.replace(/preserveAspectRatio="[^"]+"/, 'preserveAspectRatio="none"')
   } else {

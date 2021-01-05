@@ -44,7 +44,7 @@ module.exports = async function (app) {
     page.exposeFunction('avatarReady', async (e) => {
         ee.emit('page-loaded', e)
     });
-        
+
     debug('puppeteer started');
 
     (async () => {
@@ -61,7 +61,7 @@ module.exports = async function (app) {
                     await Promise.race([new Promise(async resolve => {
                         page.goto(`http://localhost/work/snapshot/${workId}`);
                         ee.once('page-loaded', async () => {
-                            await sleep(300)
+                            await sleep(500)
                             const filePath = path.resolve(__dirname, workId + '-example.png')
                             await page.screenshot({path: filePath, omitBackground: true})
                             const uploadResult = await uploadFile(filePath, workId)
