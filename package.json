@@ -25,6 +25,8 @@
     "form-data": "^3.0.0",
     "fs-extra": "^9.0.1",
     "got": "^11.8.0",
+    "htmlparser2": "^7.2.0",
+    "iconv-lite": "^0.6.3",
     "image-size": "^0.9.3",
     "jsonfile": "^6.1.0",
     "mongodb": "^3.6.2",
